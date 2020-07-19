@@ -1,6 +1,6 @@
 {
     "name": "di-ts-decorators",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "simple dependency injection",
     "main": "index.js",
     "scripts": {
@@ -28,6 +28,8 @@
     },
     "homepage": "https://github.com/samurayii/di-ts-decorators.git#readme",
     "devDependencies": {
+        "@types/chai": "^4.2.11",
+        "chai": "^4.2.0",
         "@types/chalk": "^2.2.0",
         "@types/find-package-json": "^1.1.1",
         "@types/mocha": "^8.0.0",
@@ -51,10 +53,5 @@
             "devDependencies",
             "scripts"
         ]
-    },
-    "dependencies": {
-        "@types/chai": "^4.2.11",
-        "chai": "^4.2.0",
-        "reflect-metadata": "^0.1.13"
     }
 }
