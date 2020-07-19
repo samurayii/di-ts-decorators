@@ -47,7 +47,7 @@ Factory(FactoryClassFN1.name, new FactoryClassFN1(), "scope1");
 Factory(FactoryClassFN2.name, FactoryClassFN2);
 
 @Factory()
-@Factory("scope1")Factory
+@Factory("scope1")
 class FactoryClassDE1 {}
 @Factory()
 class FactoryClassDE2 {}
