@@ -1,7 +1,6 @@
 import { expect } from "chai";
 import { Singleton, Catalog, Factory, Value } from "../src/index";
 
-
 describe("DI", function () {
 
     describe("Value", function () {
