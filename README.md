@@ -1,8 +1,8 @@
-## Simple dependency injection
+# Simple dependency injection
 
 install: `npm install di-ts-decorators`
 
-### Example
+## Example
 
 Singleton:
 
