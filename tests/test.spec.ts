@@ -1,232 +1,205 @@
 import { expect } from "chai";
-import { Singleton, Catalog, Factory, Value } from "../src/index";
+import { Singleton, Factory, Inject } from "../src/index";
 
 describe("DI", function () {
 
-    describe("Value", function () {
+    describe("Singleton", function () {
 
-        it("Value default scope", function() {
+        it("text", function() {
 
             const config = "hello";
 
-            Value("config", config);
+            Singleton("config", config);
 
-            const test1 = Catalog("config");
-            const test2 = Catalog("config");
+            const test1 = Inject("config");
+            const test2 = Inject("config");
 
             expect(test1).to.equal(config);
             expect(test2).to.equal(config);
 
         });
 
-        it("Value default/test scope", function() {
+        it("class", function() {
 
-            const config2 = "hello";
+            class SingletonClass1 {
+                private readonly _id: number
+                constructor () {
+                    this._id = Math.random();
+                }
+                get id () {
+                    return this._id;
+                }
+            }
 
-            Value("config2", config2);
-            Value("config2", config2, "test");
+            Singleton(SingletonClass1);
 
-            const test1 = Catalog("config2");
-            const test2 = Catalog("config2", "test");
+            const test1 = <SingletonClass1>Inject(SingletonClass1);
+            const test2 = <SingletonClass1>Inject(SingletonClass1);
 
-            expect(test1).to.equal(config2);
-            expect(test2).to.equal(config2);
+            expect(test1 instanceof SingletonClass1).to.equal(true);
+            expect(test2 instanceof SingletonClass1).to.equal(true);
+            expect(test1.id).to.equal(test2.id);
+
+        });
+
+        it("class (Decorator)", function() {
+
+            @Singleton()
+            class SingletonClass2 {
+                private readonly _id: number
+                constructor () {
+                    this._id = Math.random();
+                }
+                get id () {
+                    return this._id;
+                }
+            }
+
+            const test1 = <SingletonClass2>Inject(SingletonClass2);
+            const test2 = <SingletonClass2>Inject(SingletonClass2);
+
+            expect(test1 instanceof SingletonClass2).to.equal(true);
+            expect(test2 instanceof SingletonClass2).to.equal(true);
+            expect(test1.id).to.equal(test2.id);
+
+        });
+
+        it("class (Decorator with name)", function() {
+
+            @Singleton("singleton3")
+            class SingletonClass3 {
+                private readonly _id: number
+                constructor () {
+                    this._id = Math.random();
+                }
+                get id () {
+                    return this._id;
+                }
+            }
+
+            const test1 = <SingletonClass3>Inject("singleton3");
+            const test2 = <SingletonClass3>Inject("singleton3");
+
+            expect(test1 instanceof SingletonClass3).to.equal(true);
+            expect(test2 instanceof SingletonClass3).to.equal(true);
+            expect(test1.id).to.equal(test2.id);
+
+        });
+
+        it("class named", function() {
+
+            class SingletonClass4 {
+                private readonly _id: number
+                constructor () {
+                    this._id = Math.random();
+                }
+                get id () {
+                    return this._id;
+                }
+            }
+
+            Singleton("singleton4", SingletonClass4);
+
+            const test1 = <SingletonClass4>Inject("singleton4");
+            const test2 = <SingletonClass4>Inject("singleton4");
+
+            expect(test1 instanceof SingletonClass4).to.equal(true);
+            expect(test2 instanceof SingletonClass4).to.equal(true);
+            expect(test1.id).to.equal(test2.id);
 
         });
 
     });
 
-    describe("Function", function () {
+    describe("Factory", function () {
 
-        it("Singleton default scope", function() {
+        it("class", function() {
 
-            class SingletonTestClass1 {
-                private _num: number
+            class FactoryClass1 {
+                private readonly _id: number
                 constructor () {
-                    this._num = 0;
+                    this._id = Math.random();
                 }
-                hello (): number {
-                    this._num++;
-                    return this._num;
+                get id () {
+                    return this._id;
                 }
             }
 
-            Singleton(SingletonTestClass1.name, new SingletonTestClass1);
+            Factory(FactoryClass1);
 
-            const test_class1: SingletonTestClass1 = <SingletonTestClass1>Catalog(SingletonTestClass1.name);
-            const test_class2: SingletonTestClass1 = <SingletonTestClass1>Catalog(SingletonTestClass1.name);
+            const test1 = <FactoryClass1>Inject(FactoryClass1);
+            const test2 = <FactoryClass1>Inject(FactoryClass1);
 
-            expect(test_class1.hello()).to.equal(1);
-            expect(test_class2.hello()).to.equal(2);
-
-        });
-
-        it("Singleton default/test scope", function() {
-
-            class SingletonTestClass2 {
-                private _num: number
-                constructor () {
-                    this._num = 0;
-                }
-                hello (): number {
-                    this._num++;
-                    return this._num;
-                }
-            }
-
-            Singleton(SingletonTestClass2.name, new SingletonTestClass2());
-            Singleton(SingletonTestClass2.name, SingletonTestClass2, "test");
-
-            const test_class1: SingletonTestClass2 = <SingletonTestClass2>Catalog(SingletonTestClass2.name);
-            const test_class2: SingletonTestClass2 = <SingletonTestClass2>Catalog(SingletonTestClass2.name, "test");
-
-            expect(test_class1.hello()).to.equal(1);
-            expect(test_class2.hello()).to.equal(1);
+            expect(test1 instanceof FactoryClass1).to.equal(true);
+            expect(test2 instanceof FactoryClass1).to.equal(true);
+            expect(test1.id).to.not.equal(test2.id);
 
         });
 
-        it("Factory default scope", function() {
-
-            class FactoryTestClass1 {
-                private _num: number
-                constructor () {
-                    this._num = 0;
-                }
-                hello (): number {
-                    this._num++;
-                    return this._num;
-                }
-            }
-
-            Factory(FactoryTestClass1.name, FactoryTestClass1);
-
-            const test_class1: FactoryTestClass1 = <FactoryTestClass1>Catalog(FactoryTestClass1.name);
-            const test_class2: FactoryTestClass1 = <FactoryTestClass1>Catalog(FactoryTestClass1.name);
-
-            expect(test_class1.hello()).to.equal(1);
-            expect(test_class2.hello()).to.equal(1);
-
-        });
-
-        it("Factory default/test scope", function() {
-
-            class FactoryTestClass2 {
-                private _num: number
-                constructor () {
-                    this._num = 0;
-                }
-                hello (): number {
-                    this._num++;
-                    return this._num;
-                }
-            }
-
-            Factory(FactoryTestClass2.name, FactoryTestClass2);
-            Factory(FactoryTestClass2.name, FactoryTestClass2, "test");
-
-            const test_class1: FactoryTestClass2 = <FactoryTestClass2>Catalog(FactoryTestClass2.name);
-            const test_class2: FactoryTestClass2 = <FactoryTestClass2>Catalog(FactoryTestClass2.name, "test");
-
-            expect(test_class1.hello()).to.equal(1);
-            expect(test_class2.hello()).to.equal(1);
-
-        });
-
-    });
-
-    describe("Decorators", function () {
-
-        it("Singleton default scope", function() {
-
-            @Singleton()
-            class SingletonTest2Class1 {
-                private _num: number
-                constructor () {
-                    this._num = 0;
-                }
-                hello (): number {
-                    this._num++;
-                    return this._num;
-                }
-            }
-
-            const test_class1: SingletonTest2Class1 = <SingletonTest2Class1>Catalog(SingletonTest2Class1.name);
-            const test_class2: SingletonTest2Class1 = <SingletonTest2Class1>Catalog(SingletonTest2Class1.name);
-
-            expect(test_class1.hello()).to.equal(1);
-            expect(test_class2.hello()).to.equal(2);
-
-        });
-
-        it("Singleton default/test scope", function() {
-
-            @Singleton()
-            @Singleton("test")
-            class SingletonTest2Class2 {
-                private _num: number
-                constructor () {
-                    this._num = 0;
-                }
-                hello (): number {
-                    this._num++;
-                    return this._num;
-                }
-            }
-
-            const test_class1: SingletonTest2Class2 = <SingletonTest2Class2>Catalog(SingletonTest2Class2.name);
-            const test_class2: SingletonTest2Class2 = <SingletonTest2Class2>Catalog(SingletonTest2Class2.name, "test");
-
-            expect(test_class1.hello()).to.equal(1);
-            expect(test_class2.hello()).to.equal(1);
-
-        });
-
-        it("Factory default scope", function() {
+        it("class (Decorator)", function() {
 
             @Factory()
-            class FactoryTest2Class1 {
-                private _num: number
+            class FactoryClass2 {
+                private readonly _id: number
                 constructor () {
-                    this._num = 0;
+                    this._id = Math.random();
                 }
-                hello (): number {
-                    this._num++;
-                    return this._num;
+                get id () {
+                    return this._id;
                 }
             }
 
-            const test_class1: FactoryTest2Class1 = <FactoryTest2Class1>Catalog(FactoryTest2Class1.name);
-            const test_class2: FactoryTest2Class1 = <FactoryTest2Class1>Catalog(FactoryTest2Class1.name);
+            const test1 = <FactoryClass2>Inject(FactoryClass2);
+            const test2 = <FactoryClass2>Inject(FactoryClass2);
 
-            expect(test_class1.hello()).to.equal(1);
-            expect(test_class2.hello()).to.equal(1);
+            expect(test1 instanceof FactoryClass2).to.equal(true);
+            expect(test2 instanceof FactoryClass2).to.equal(true);
+            expect(test1.id).to.not.equal(test2.id);
 
         });
 
-        it("Factory default/test scope", function() {
+        it("class (Decorator with name)", function() {
 
-            @Factory()
-            @Factory("test")
-            class FactoryTest2Class2 {
-                private _num: number
+            @Factory("factory3")
+            class FactoryClass3 {
+                private readonly _id: number
                 constructor () {
-                    this._num = 0;
+                    this._id = Math.random();
                 }
-                hello (): number {
-                    this._num++;
-                    return this._num;
+                get id () {
+                    return this._id;
                 }
             }
 
-            const test_class1: FactoryTest2Class2 = <FactoryTest2Class2>Catalog(FactoryTest2Class2.name);
-            const test_class2: FactoryTest2Class2 = <FactoryTest2Class2>Catalog(FactoryTest2Class2.name, "test");
-            const test_class3: FactoryTest2Class2 = <FactoryTest2Class2>Catalog(FactoryTest2Class2.name);
-            const test_class4: FactoryTest2Class2 = <FactoryTest2Class2>Catalog(FactoryTest2Class2.name, "test");
+            const test1 = <FactoryClass3>Inject("factory3");
+            const test2 = <FactoryClass3>Inject("factory3");
 
-            expect(test_class1.hello()).to.equal(1);
-            expect(test_class2.hello()).to.equal(1);
-            expect(test_class3.hello()).to.equal(1);
-            expect(test_class4.hello()).to.equal(1);
+            expect(test1 instanceof FactoryClass3).to.equal(true);
+            expect(test2 instanceof FactoryClass3).to.equal(true);
+            expect(test1.id).to.not.equal(test2.id);
+
+        });
+
+        it("class named", function() {
+
+            class FactoryClass4 {
+                private readonly _id: number
+                constructor () {
+                    this._id = Math.random();
+                }
+                get id () {
+                    return this._id;
+                }
+            }
+
+            Factory("factory4", FactoryClass4);
+
+            const test1 = <FactoryClass4>Inject("factory4");
+            const test2 = <FactoryClass4>Inject("factory4");
+
+            expect(test1 instanceof FactoryClass4).to.equal(true);
+            expect(test2 instanceof FactoryClass4).to.equal(true);
+            expect(test1.id).to.not.equal(test2.id);
 
         });
 

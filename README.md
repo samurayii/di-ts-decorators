@@ -5,30 +5,30 @@ install: `npm install di-ts-decorators`
 ### Example
 
 Singleton:
+
 ```js
-import { Singleton, Catalog } from "di-ts-decorators";
+import { Singleton, Inject } from "di-ts-decorators";
 
 class SingletonClassFN1 {}
 class SingletonClassFN2 {}
 
-Singleton(SingletonClassFN1.name, new SingletonClassFN1());
-Singleton(SingletonClassFN1.name, new SingletonClassFN1(), "scope1");
-Singleton(SingletonClassFN2.name, SingletonClassFN2);
+Singleton("config", {key: "value"});
+Singleton(SingletonClassFN1);
+Singleton("FN2", SingletonClassFN2);
 
 @Singleton()
-@Singleton("scope1")
 class SingletonClassDE1 {}
-@Singleton()
+@Singleton("DE2")
 class SingletonClassDE2 {}
+
 
 class B {
     constructor (
-        private readonly _singleton1 = Catalog(SingletonClassFN1.name)
-        private readonly _singleton2 = Catalog(SingletonClassFN2.name)
-        private readonly _singleton3 = Catalog(SingletonClassDE1.name)
-        private readonly _singleton4 = Catalog(SingletonClassDE2.name)
-        private readonly _singleton5 = Catalog(SingletonClassFN1.name, "scope1")
-        private readonly _singleton6 = Catalog(SingletonClassDE1.name, "scope1")
+        private readonly _config = Inject("config"),
+        private readonly _SingletonClassFN1 = Inject(SingletonClassFN1),
+        private readonly _SingletonClassFN2 = Inject("FN2"),
+        private readonly _SingletonClassDE1 = Inject(SingletonClassDE1),
+        private readonly _SingletonClassDE2 = Inject("DE2")
     ) {}
 }
 
@@ -36,47 +36,27 @@ const b = new B();
 ```
 
 Factory:
+
 ```js
 import { Factory, Catalog } from "di-ts-decorators";
 
 class FactoryClassFN1 {}
 class FactoryClassFN2 {}
 
-Factory(FactoryClassFN1.name, new FactoryClassFN1());
-Factory(FactoryClassFN1.name, new FactoryClassFN1(), "scope1");
-Factory(FactoryClassFN2.name, FactoryClassFN2);
+Factory(FactoryClassFN1);
+Factory("FN2", FactoryClassFN2);
 
 @Factory()
-@Factory("scope1")
 class FactoryClassDE1 {}
-@Factory()
+@Factory("DE2")
 class FactoryClassDE2 {}
 
 class B {
     constructor (
-        private readonly _factory1 = Catalog(FactoryClassFN1.name)
-        private readonly _factory2 = Catalog(FactoryClassFN2.name)
-        private readonly _factory3 = Catalog(FactoryClassDE1.name)
-        private readonly _factory4 = Catalog(FactoryClassDE2.name)
-        private readonly _factory5 = Catalog(FactoryClassFN1.name, "scope1")
-        private readonly _factory6 = Catalog(FactoryClassDE1.name, "scope1")
-    ) {}
-}
-
-const b = new B();
-```
-
-Value:
-```js
-import { Value, Catalog } from "di-ts-decorators";
-
-Value("message", "hello");
-Value("message", "hello", "scope1");
-
-class B {
-    constructor (
-        private readonly _value1 = Catalog("message")
-        private readonly _value5 = Catalog("message", "scope1")
+        private readonly _FactoryClassFN1 = Catalog(FactoryClassFN1)
+        private readonly _FactoryClassFN2 = Catalog("FN2")
+        private readonly _FactoryClassDE1 = Catalog(FactoryClassDE1)
+        private readonly _FactoryClassDE2 = Catalog("DE2")
     ) {}
 }
 

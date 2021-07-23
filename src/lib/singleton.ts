@@ -1,52 +1,42 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { catalog } from "./catalog";
+import DICatalog from "./catalog";
+import * as chalk from "chalk";
 
-export function Singleton (name: string = "default", instance?: unknown, scope: string = "default", rewrite: boolean = false): Function {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function Singleton (name?: string | Function, constructor_fn?: unknown) {
 
-    if (name !== undefined && instance !== undefined) {
-
-        if (catalog[scope] === undefined) {
-            catalog[scope] = {};
-        }
-
-        if (catalog[scope][name] !== undefined && rewrite === false) {              
-            throw new Error(`Service locator error. Record ${name} already exist`);
-        }
-
-        if (typeof instance === "function") {
-            catalog[scope][name] = {
-                type: "singleton",
-                constr: instance as FunctionConstructor
-            };
-        } else {
-            catalog[scope][name] = {
-                type: "singleton",
-                instance: instance
-            };
-        }
-
+    if (name === undefined) {
+        return function (target: Function) {
+            const name = target.name;
+            DICatalog.singleton(name, target);
+        };
     } else {
 
-        scope = name;
-
-        if (catalog[scope] === undefined) {
-            catalog[scope] = {};
+        if (typeof name !== "function" && typeof name !== "string") {
+            console.error(`${chalk.bgRed("[FATAL]")} DI Singleton ${chalk.yellow("name")} must be ${chalk.yellow("string")} or ${chalk.yellow("class function")}`);
+            process.exit(1);
         }
 
-        return function (target: Function) {
+        if (typeof name === "function") {
+            DICatalog.singleton(name.name, name);
+            return;
+        }
 
-            const name_service = target.name;
+        if (typeof name === "string" && typeof constructor_fn === "function") {
+            DICatalog.singleton(name, constructor_fn);
+            return;
+        }
 
-            if (catalog[scope][name_service] !== undefined && rewrite === false) {              
-                throw new Error(`Service locator error. Record ${name_service} already exist`);
-            }
+        if (typeof name === "string" && constructor_fn !== undefined) {
+            DICatalog.singleton(name, null, constructor_fn);
+            return;
+        }
 
-            catalog[scope][name_service] = {
-                type: "singleton",
-                constr: target as FunctionConstructor
+        if (typeof name === "string") {
+            return function (target: Function) {
+                DICatalog.singleton(name, target);
             };
-
-        };
+        }
 
     }
 

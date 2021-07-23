@@ -1,49 +1,37 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { catalog } from "./catalog";
+import DICatalog from "./catalog";
+import * as chalk from "chalk";
 
-export function Factory (name: string = "default", constructor?: unknown, scope: string = "default", rewrite: boolean = false): Function {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function Factory (name?: string | Function, constructor_fn?: Function) {
 
-    if (name !== undefined && constructor !== undefined) {
-
-        if (catalog[scope] === undefined) {
-            catalog[scope] = {};
-        }
-
-        if (catalog[scope][name] !== undefined && rewrite === false) {              
-            throw new Error(`Service locator error. Record ${name} already exist`);
-        }
-
-        if (typeof constructor !== "function") {              
-            throw new Error("Service locator error. Constructor must be function");
-        }
-
-        catalog[scope][name] = {
-            type: "factory",
-            constr: constructor as FunctionConstructor
+    if (name === undefined) {
+        return function (target: Function) {
+            const name = target.name;
+            DICatalog.factory(name, target);
         };
-
     } else {
 
-        scope = name;
-
-        if (catalog[scope] === undefined) {
-            catalog[scope] = {};
+        if (typeof name !== "function" && typeof name !== "string") {
+            console.error(`${chalk.bgRed("[FATAL]")} DI Factory ${chalk.yellow("name")} must be ${chalk.yellow("string")} or ${chalk.yellow("class function")}`);
+            process.exit(1);
         }
 
-        return function (target: Function) {
+        if (typeof name === "function") {
+            DICatalog.factory(name.name, name);
+            return;
+        }
 
-            const name_service = target.name;
+        if (typeof name === "string" && typeof constructor_fn === "function") {
+            DICatalog.factory(name, constructor_fn);
+            return;
+        }
 
-            if (catalog[scope][name_service] !== undefined && rewrite === false) {              
-                throw new Error(`Service locator error. Record ${name_service} already exist`);
-            }
-
-            catalog[scope][name_service] = {
-                type: "factory",
-                constr: target as FunctionConstructor
+        if (typeof name === "string") {
+            return function (target: Function) {
+                DICatalog.factory(name, target);
             };
-
-        };
+        }
 
     }
 
