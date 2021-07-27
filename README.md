@@ -11,10 +11,12 @@ import { Singleton, Inject } from "di-ts-decorators";
 
 class SingletonClassFN1 {}
 class SingletonClassFN2 {}
+class SingletonClassFN3 {}
 
 Singleton("config", {key: "value"});
 Singleton(SingletonClassFN1);
 Singleton("FN2", SingletonClassFN2);
+Singleton(SingletonClassFN3, new SingletonClassFN3());
 
 @Singleton()
 class SingletonClassDE1 {}
@@ -27,6 +29,7 @@ class B {
         private readonly _config = Inject("config"),
         private readonly _SingletonClassFN1 = Inject(SingletonClassFN1),
         private readonly _SingletonClassFN2 = Inject("FN2"),
+        private readonly _SingletonClassFN1 = Inject(SingletonClassFN3),
         private readonly _SingletonClassDE1 = Inject(SingletonClassDE1),
         private readonly _SingletonClassDE2 = Inject("DE2")
     ) {}

@@ -17,6 +17,11 @@ export function Singleton (name?: string | Function, constructor_fn?: unknown) {
             process.exit(1);
         }
 
+        if (typeof name === "function" && constructor_fn !== undefined) {
+            DICatalog.singleton(name.name, name, constructor_fn);
+            return;
+        }
+
         if (typeof name === "function") {
             DICatalog.singleton(name.name, name);
             return;
